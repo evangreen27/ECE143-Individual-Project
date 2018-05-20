@@ -42,6 +42,7 @@ def coverage(n, coverageW, coverageH):
         #reset possible towers each iteration
         towerPossibilities = []
         newTower = createTower(coverageW,coverageH)
+        #print("--------------new %s") % newTower
 
         if(len(towerList) == 0):
             towerList.append(newTower)
@@ -197,42 +198,37 @@ def trimTower(newTower,towerList):
     tower3 = None
     tower4 = None
     trimmed = False
-    for tower in towerList:
-        #print("Checking if %s overlaps %s") % (newTower,tower)
-        if (newTower.left < tower.right and newTower.right > tower.left and newTower.top > tower.bot and newTower.bot < tower.top):
-            #print("%s Does overlap %s") % (newTower,tower)
-
-            if(tower.top < newTower.top): # trim bottom
-                tower1 = cTower((newTower.left,newTower.bot + (tower.top - newTower.bot)),newTower.width,newTower.height - (tower.top - newTower.bot))
-                trimTower(tower1,towerList)
-                trimmed = True
-
-            if(tower.bot > newTower.bot): # trim top
-                tower2 = cTower((newTower.left,newTower.bot),newTower.width,newTower.height - (newTower.top - tower.bot))
-                trimTower(tower2,towerList)
-                trimmed = True
-
-            if(tower.right < newTower.right): #trim left
-                tower3 = cTower((newTower.left + (tower.right - newTower.left),newTower.bot),newTower.width - (tower.right - newTower.left),newTower.height)
-                trimTower(tower3,towerList)
-                trimmed = True
-
-            if(tower.left > newTower.left): #trim right
-                 tower4 = cTower((newTower.left,newTower.bot),newTower.width - (newTower.right - tower.left),newTower.height)
-                 trimTower(tower4,towerList)
-                 trimmed = True
-
-            if(trimmed == False):
-                #Completely inside another placed tower, don't add it
-                return 0
-        else:
-            #Does not overlap, so continue to the next tower
-            continue
-            
-    if((tower1 is None) and (tower2 is None) and (tower3 is None) and (tower4 is None)):
-        #if it intersects with no other towers, add it to the possible towers.
+    if(len(towerList) == 0):
         towerPossibilities.append((newTower.area,newTower))
+        return 0
+    tower = towerList[0]
+    #print("Checking if %s overlaps %s") % (newTower,tower)
+    if (newTower.left < tower.right and newTower.right > tower.left and newTower.top > tower.bot and newTower.bot < tower.top):
+        #print("%s Does overlap %s") % (newTower,tower)
 
+        if(tower.top < newTower.top): # trim bottom
+            tower1 = cTower((newTower.left,newTower.bot + (tower.top - newTower.bot)),newTower.width,newTower.height - (tower.top - newTower.bot))
+            trimTower(tower1,towerList[1:])
+            trimmed = True
+
+        if(tower.bot > newTower.bot): # trim top
+            tower2 = cTower((newTower.left,newTower.bot),newTower.width,newTower.height - (newTower.top - tower.bot))
+            trimTower(tower2,towerList[1:])
+            trimmed = True
+
+        if(tower.right < newTower.right): #trim left
+            tower3 = cTower((newTower.left + (tower.right - newTower.left),newTower.bot),newTower.width - (tower.right - newTower.left),newTower.height)
+            trimTower(tower3,towerList[1:])
+            trimmed = True
+
+        if(tower.left > newTower.left): #trim right
+            tower4 = cTower((newTower.left,newTower.bot),newTower.width - (newTower.right - tower.left),newTower.height)
+            trimTower(tower4,towerList[1:])
+            trimmed = True
+
+        if(trimmed == False):
+            #Completely inside another placed tower, don't add it
+            return 0
+    else:
+        trimTower(newTower,towerList[1:])
     return 0
-
-print(coverage(4,5,5))
